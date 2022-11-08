@@ -39,7 +39,7 @@ export class Consumption extends Model {
 
 export async function syncConsumption() {
   try {
-    await Consumption.sync({logging: false, force: true});
+    await Consumption.sync({logging: false});
     console.log('Tabela consumption criada com sucesso!');
   } catch (error) {
     console.error('Não foi possível criar a tabela consumption: ', error);
