@@ -1,10 +1,14 @@
 import { Alfa_Slab_One } from '@next/font/google';
+import { useContext } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: ['400']
 })
 
 export function Header() {
+  const { name } = useContext(AuthContext)
+  console.log(name)
   return (
     <header className="bg-dark-blue-500 py-4 w-full">
       <div className='mx-auto w-[1120px] flex justify-between items-center flex-row px-4'>
@@ -18,7 +22,7 @@ export function Header() {
         </h1>
 
         <span className='text-sm text-dark-blue-100'>
-          Boa noite, Marcelo
+          Boa noite, {name}
         </span>
       </div>
     </header>

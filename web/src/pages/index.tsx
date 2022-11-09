@@ -1,11 +1,12 @@
 import { Alfa_Slab_One } from '@next/font/google';
 import { useRouter } from 'next/router';
 import { useContext, useEffect } from 'react';
-import { useForm,  } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import { Button } from '../components/Button';
 import { Input } from '../components/Input';
 import { AuthContext } from '../contexts/AuthContext';
 import * as Separator from '@radix-ui/react-separator'
+import { Loading } from '../components/Loading';
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: ['400']
@@ -17,9 +18,14 @@ interface LoginInputProps {
 }
 
 export default function Home() {
-  const {name} = useContext(AuthContext);
+  const {name, login, loading} = useContext(AuthContext);
   const {push} = useRouter()
-  const { register, handleSubmit } = useForm<LoginInputProps>()
+  const { handleSubmit, control, reset } = useForm<LoginInputProps>({
+    defaultValues: {
+      email: '',
+      password: ''
+    }
+  })
 
   function redirectUserToOverview() {
     if(name) {
@@ -31,13 +37,20 @@ export default function Home() {
     push('/signup')
   }
 
-  function handleLogin(data: LoginInputProps) {
-    console.log(data)
+  async function handleLogin(data: LoginInputProps) {
+    try {
+      await login(data)
+    } catch(err) {
+      console.log(err)
+    } finally {
+      reset()
+    }
+    
   }
 
   useEffect(() => {
     redirectUserToOverview();
-  }, [])
+  }, [name])
 
   return (
     <div className='bg-gradient-to-r from-cyan-700 to-green-500 flex flex-1 justify-center items-center w-screen h-screen'>
@@ -57,26 +70,46 @@ export default function Home() {
 
         <form onSubmit={handleSubmit(handleLogin)} className="flex flex-col gap-4">
           <label className='grid grid-cols-3-7 items-center gap-4 text-gray-100 text-lg font-bold'>Email
-            <Input
-              type="email"
-              placeholder='Seu email aqui'
-              {...register('email')}
-            />
+            <Input.Container>
+              <Controller
+                name='email'
+                control={control}
+                render={({ field }) => (
+                  <Input.Input
+                    type="email"
+                    placeholder='Seu email aqui'
+                    {...field}
+                  />
+                )}
+              />
+            </Input.Container>
+            
+            
           </label>
 
           <label className='grid grid-cols-3-7 items-center gap-4 text-gray-100 text-lg font-bold'>Senha
-            <Input
-              type="password"
-              placeholder='******'
-              {...register('password')}
-            />
+            <Input.Container>
+              <Controller
+                name='password'
+                control={control}
+                render={({ field }) => (
+                  <Input.Password
+                    type="password"
+                    placeholder='******'
+                    {...field}
+                  />
+                )}
+              />
+            </Input.Container>
           </label>
           
           <footer className='flex justify-around gap-8'>
-            <Button type="submit">
-              Entrar
+            <Button type="submit" disabled={loading}>
+              {
+                loading ? <Loading /> : 'Entrar'
+              }
             </Button>
-            <Button type="button" variant='secondary' onClick={handleNavigationToSignUp}>
+            <Button type="button" variant='secondary' onClick={handleNavigationToSignUp} disabled={loading}>
               Cadastrar
             </Button>
           </footer>

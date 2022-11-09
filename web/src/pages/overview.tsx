@@ -101,7 +101,7 @@ const Overview: NextPageWithLayout = () => {
       <div className='mt-4 grid grid-cols-4 gap-2'>
         <EnergyItem title='Energia gasta por hora' value='12kw/h' />
         <EnergyItem title='Valor gasto por hora' value='R$ 6,00' variant='secondary' />
-        <EnergyItem title='Possível gasto até o fim do mês' value='R$ 720,00' />
+        <EnergyItem title='Gastos totais' value='R$ 720,00' />
         <EnergyItem title='Economia total' value='R$ 500,00' variant='secondary'  />
       </div>
 

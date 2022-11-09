@@ -1,9 +1,36 @@
-import { forwardRef, InputHTMLAttributes, useEffect, useState } from 'react';
+import { forwardRef, InputHTMLAttributes, ReactNode, useEffect, useState } from 'react';
 import { EyeClosed, Eye } from "phosphor-react";
 
-export type Ref = HTMLInputElement
+interface InputContainerProps {
+  children: ReactNode
+}
 
-export const Input = forwardRef<Ref, InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
+function InputContainer({children}: InputContainerProps) {
+  return (
+    <div className="flex flex-row rounded p-3 bg-dark-blue-500 focus-within:ring-2 ring-green-400">
+      {children}
+    </div>
+    
+  )
+}
+
+type RefInput = HTMLInputElement
+
+const InputInput = forwardRef<RefInput, InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
+  const {name, type, ...rest} = props;
+
+  return (
+    <input 
+      ref={ref}
+      className="bg-transparent text-gray-100 placeholder:text-dark-blue-100 text-md font-normal flex-1 focus:outline-none"
+      {...rest}
+    />
+  )
+})
+
+type RefPassword = HTMLInputElement
+
+const PasswordInput = forwardRef<RefPassword, InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
   const {name, type, ...rest} = props;
   const [newType, setNewType] = useState(type);
   const [showPassword, setShowPassword] = useState(false);
@@ -19,7 +46,7 @@ export const Input = forwardRef<Ref, InputHTMLAttributes<HTMLInputElement>>((pro
   }, [showPassword])
 
   return (
-    <div className="flex flex-row rounded p-3 bg-dark-blue-500 focus-within:ring-2 ring-green-400">
+    <>
       <input 
         ref={ref} 
         className="bg-transparent text-gray-100 placeholder:text-dark-blue-100 text-md font-normal flex-1 focus:outline-none"
@@ -35,7 +62,13 @@ export const Input = forwardRef<Ref, InputHTMLAttributes<HTMLInputElement>>((pro
           </button>
         )
       }
-    </div>
+    </>
     
   )
 })
+
+export const Input = {
+  Container: InputContainer,
+  Input: InputInput,
+  Password: PasswordInput
+}

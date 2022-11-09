@@ -1,30 +1,48 @@
 import { Alfa_Slab_One } from '@next/font/google'
 import * as Separator from '@radix-ui/react-separator'
 import { useRouter } from 'next/router'
-import { useForm } from 'react-hook-form'
+import { useContext } from 'react'
+import { Controller, useForm } from 'react-hook-form'
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
+import { Loading } from '../components/Loading'
+import { AuthContext } from '../contexts/AuthContext'
 
 const alfaSlabOne = Alfa_Slab_One({
   weight: ['400']
 })
 
 interface SignUpInputProps {
-  nome: string
+  name: string
   email: string
   password: string
 }
 
 export default function SignUp() {
+  const { signUp, loading} = useContext(AuthContext)
   const { push } = useRouter()
-  const { register, handleSubmit } = useForm<SignUpInputProps>()
+  const { handleSubmit, control, reset } = useForm<SignUpInputProps>({
+    defaultValues: {
+      name: '',
+      email: '',
+      password: ''
+    }
+  })
 
   function handleNavigationToLogin() {
     push('/')
   }
 
-  function handleSignUp(data: SignUpInputProps) {
-    console.log(data)
+  async function handleSignUp(data: SignUpInputProps) {
+    try {
+      await signUp(data)
+
+      handleNavigationToLogin()
+    } catch(err) {
+      console.log(err)
+    } finally {
+      reset()
+    }
   }
 
   return(
@@ -45,34 +63,63 @@ export default function SignUp() {
 
         <form onSubmit={handleSubmit(handleSignUp)} className="flex flex-col gap-4">
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Nome
-            <Input
-              type="text"
-              placeholder='Seu nome aqui'
-              {...register('nome')}
-            />
+            <Input.Container>
+              <Controller
+                name='name'
+                control={control}
+                render={({ field }) => (
+                  <Input.Input
+                    type="text"
+                    placeholder='Seu nome aqui'
+                    {...field}
+                  />
+                )}
+              />
+            </Input.Container>
+            
           </label>
 
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Email
-            <Input
-              type="email"
-              placeholder='Seu email aqui'
-              {...register('email')}
-            />
+            <Input.Container>
+              <Controller
+                name='email'
+                control={control}
+                render={({ field }) => (
+                  <Input.Input
+                    type="email"
+                    placeholder='Seu email aqui'
+                    {...field}
+                  />
+                )}
+              />
+            </Input.Container>
+            
           </label>
 
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Senha
-            <Input
-              type="password"
-              placeholder='******'
-              {...register('password')}
-            />
+            <Input.Container>
+              <Controller
+                name='password'
+                control={control}
+                render={({ field }) => (
+                  <Input.Password
+                    type="password"
+                    placeholder='******'
+                    {...field}
+                  />
+                )}
+              />
+            </Input.Container>
+            
           </label>
           
           <footer className='flex justify-around gap-8'>
-            <Button type="submit">
-              Cadastrar
+            <Button type="submit" disabled={loading}>
+              {
+                loading ? <Loading /> : 'Cadastrar'
+              }
             </Button>
-            <Button type="button" variant='secondary' onClick={handleNavigationToLogin}>
+            <Button type="button" variant='secondary' onClick={handleNavigationToLogin} disabled={loading}>
               Voltar para Login
             </Button>
           </footer>
