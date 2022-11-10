@@ -5,7 +5,9 @@
   "main": "src/server.ts",
   "scripts": {
     "dev": "tsx --watch src/server.ts",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "seed:all": "sequelize db:seed:all",
+    "seed:undo": "sequelize db:seed:undo"
   },
   "author": "Marcelo Alves",
   "license": "ISC",
