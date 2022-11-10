@@ -56,6 +56,7 @@ export function AuthProvider({children}: AuthProviderProps) {
 
   function logout() {
     setName('');
+    setLoading(false);
     localStorage.setItem('@energetic-tracker1.0:user-name', '')
   }
 

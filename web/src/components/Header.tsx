@@ -22,7 +22,7 @@ export function Header() {
 
   return (
     <header className="bg-dark-blue-500 py-4 w-full">
-      <div className='mx-auto w-[1120px] flex justify-between items-center flex-row px-4'>
+      <div className='mx-auto md:w-[1120px] w-full flex justify-between items-center flex-row px-4'>
         <h1 className={`flex justify-center items-center ${alfaSlabOne.className} gap-4`}>
           <span className='text-xl text-transparent bg-clip-text bg-gradient-to-l from-cyan-700 to-green-500'>
             ENERGETIC

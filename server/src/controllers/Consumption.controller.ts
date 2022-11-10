@@ -20,7 +20,21 @@ export async function listAllConsumptions(req: Request, res: Response) {
 
     const pages = [...Array(pagesCount).keys()].map((page) => page + 1)
 
-    return res.status(200).json({pages, ...consumptions});
+    const newConsumptions = consumptions.rows.map((consumption) => {
+      return {
+        id: consumption.id,
+        tag: consumption.tag,
+        date: consumption.date,
+        value: consumption.value / 100,
+        discount: consumption.discount / 100,
+        consumption: consumption.consumption / 100,
+        userId: consumption.userId,
+        createdAt: consumption.createdAt,
+        updatedAt: consumption.updatedAt,
+      }
+    })
+
+    return res.status(200).json({pages, count: consumptions.count, rows: newConsumptions});
   } catch(error) {
     return res.status(400).json({error});
   }
@@ -48,10 +62,10 @@ export async function createConsumption(req: Request, res: Response) {
 
     const consumptionCreated = await Consumption.create({
       tag,
-      consumption,
+      consumption: Number(consumption) * 100,
       date,
-      discount,
-      value,
+      discount: Number(discount) * 100,
+      value: Number(value) * 100,
       userId: req.userId,
     })
 
@@ -77,9 +91,9 @@ export async function monthDetails(req: Request, res: Response) {
 
     const monthDetails = {
       month: thisMonth,
-      totalConsumption: consumptions.reduce((acc, consumption) => acc + consumption.consumption, 0),
-      totalValue: consumptions.reduce((acc, consumption) => acc + consumption.value, 0),
-      totalDiscount: consumptions.reduce((acc, consumption) => acc + consumption.discount, 0),
+      totalConsumption: consumptions.reduce((acc, consumption) => acc + consumption.consumption / 100, 0),
+      totalValue: consumptions.reduce((acc, consumption) => acc + consumption.value / 100, 0),
+      totalDiscount: consumptions.reduce((acc, consumption) => acc + consumption.discount / 100, 0),
     }
 
     return res.status(200).json({monthDetails});
@@ -104,8 +118,8 @@ export async function valueAndEconomy(req: Request, res: Response) {
 
     const valueAndEconomy= consumptions.map(consumption => {
       const month = getMonth(consumption.date) + 1;
-      const totalValue = consumption.value;
-      const totalDiscount = consumption.discount;
+      const totalValue = consumption.value / 100;
+      const totalDiscount = consumption.discount / 100;
 
       return {
         month,
@@ -114,7 +128,7 @@ export async function valueAndEconomy(req: Request, res: Response) {
       }
     })
 
-    const months = [...new Set(valueAndEconomy.map(consumption => consumption.month))];
+    const months = [...new Set(valueAndEconomy.map(consumption => consumption.month))].sort((a, b) => a - b);
     const values = months.map(
       month => valueAndEconomy.filter(
         consumption => consumption.month === month
@@ -153,11 +167,11 @@ export async function moreEnergyData(req: Request, res: Response) {
       hours = 720;
     }
 
-    const energyPerHour = consumptions.reduce((acc, consumption) => acc + consumption.consumption, 0) / hours || 720;
-    const valuePerHour = consumptions.reduce((acc, consumption) => acc + consumption.value, 0) / hours;
+    const energyPerHour = consumptions.reduce((acc, consumption) => acc + consumption.consumption / 100, 0) / hours || 720;
+    const valuePerHour = consumptions.reduce((acc, consumption) => acc + consumption.value / 100, 0) / hours;
 
-    const valueTotal = consumptions.reduce((acc, consumption) => acc + consumption.value, 0);
-    const economyTotal = consumptions.reduce((acc, consumption) => acc + consumption.discount, 0);
+    const valueTotal = consumptions.reduce((acc, consumption) => acc + consumption.value / 100, 0);
+    const economyTotal = consumptions.reduce((acc, consumption) => acc + consumption.discount / 100, 0);
 
     return res.status(200).json({energyPerHour, valuePerHour, valueTotal, economyTotal});
   } catch(error) {

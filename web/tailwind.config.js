@@ -55,7 +55,11 @@ module.exports = {
     fontWeight: {
       normal: 400,
       bold: 700,
-    }
+    },
+    screens: {
+      sm: '640px',
+      md: '1120px',
+    },
   },
   plugins: [],
 }

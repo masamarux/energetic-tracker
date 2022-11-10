@@ -15,7 +15,7 @@ export function AsideMenu() {
             <Plus size={18} className="text-gray-100" weight='bold'  /> Adicionar consumo
           </MenuItem>
           <Separator.Root orientation='horizontal' decorative className='bg-dark-blue-500 w-full h-px my-4' />
-          <MenuItem href="/consumption/list">
+          <MenuItem href="/consumption/list/1">
             <Article size={18} className="text-gray-100" weight='bold'  /> Listagem de consumos
           </MenuItem>
         </ul>

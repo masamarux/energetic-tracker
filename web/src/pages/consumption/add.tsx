@@ -10,11 +10,10 @@ import { Input } from '../../components/Input'
 import { Button } from '../../components/Button'
 import axios from 'axios';
 import { Loading } from '../../components/Loading';
-import { AuthContext } from '../../contexts/AuthContext';
 import { useRouter } from 'next/router';
-import { GetServerSideProps } from 'next';
-import { getCookie } from 'cookies-next';
-
+import Head from 'next/head';
+import CurrencyInput from 'react-currency-input-field';
+import { clearPriceFormatting } from '../../utils/formatter';
 
 type FieldValues = {
   tag: string
@@ -34,9 +33,8 @@ const addConsumptionInputProps = z.object({
 
 const Add: NextPageWithLayout = () => {
   const [loading, setLoading] = useState(false)
-  const {name} = useContext(AuthContext);
   const { push } = useRouter()
-  const { register, handleSubmit, reset, control, formState: {errors}, setError } = useForm<FieldValues>({
+  const { handleSubmit, reset, control, formState: {errors}, setError } = useForm<FieldValues>({
     resolver: zodResolver(addConsumptionInputProps),
     defaultValues: {
       tag: '',
@@ -48,29 +46,37 @@ const Add: NextPageWithLayout = () => {
   })
 
   async function handleAddConsumption(data: FieldValues) {
+    console.log()
     setLoading(true)
     try {
-      await axios.post('/api/createConsumption', data)
+      await axios.post('/api/createConsumption', {
+        ...data,
+        value: clearPriceFormatting(data.value),
+        discount: clearPriceFormatting(data.discount),
+        consumption: clearPriceFormatting(data.consumption)
+      })
 
       reset()
-    } catch (error) {
-      console.log(error)
+    } catch (error: any) {
+      if (error.response.status === 401) {
+        push('/logout')
+      }
     } finally {
       setLoading(false)
     }
   }
 
-  useEffect(() => {
-    if(!name) {
-      push('/')
-    }
-  }, [name])
-
   return (
-    <div>
+    <>
+      <Head>
+        <title>Adicionar consumo | Energetic Tracker</title>
+        <meta name="robots" content="noindex"/>
+      </Head>
+
+      <div>
       <strong className='flex flex-row items-center gap-4 text-lg font-bold text-gray-100 mb-4'><Plus weight='bold' className='text-green-500' /> Adicione um novo consumo:</strong>
 
-      <div className='grid grid-cols-7-3'>
+      <div className='grid md:grid-cols-7-3 grid-1'>
         <form onSubmit={handleSubmit(handleAddConsumption)} className="flex flex-col gap-3">
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Tag
             <Input.Container hasError={!!errors.tag}>
@@ -109,14 +115,21 @@ const Add: NextPageWithLayout = () => {
               <Controller
                 name='consumption'
                 control={control}
-                render={({ field }) => (
-                  <Input.Input
-                    type="number"
-                    placeholder='Quantos kw foram consumidos?'
-                    {...field}
+                render={({ field: {name, onBlur, onChange, ref, value} }) => (
+                  <Input.Currency
+                    ref={ref}
+                    name={name}
+                    placeholder="Quantos kw foram consumidos?"
+                    defaultValue={0}
+                    onValueChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
                   />
                 )}
               />
+              <span className='text-md'>
+                kW
+              </span>
             </Input.Container>
           </label>
 
@@ -125,11 +138,16 @@ const Add: NextPageWithLayout = () => {
               <Controller
                 name='value'
                 control={control}
-                render={({ field }) => (
-                  <Input.Input
-                    type="number"
-                    placeholder='R$ 0,00'
-                    {...field}
+                render={({ field: {name, onBlur, onChange, ref, value} }) => (
+                  <Input.Currency
+                    ref={ref}
+                    name={name}
+                    placeholder="Informe o valor pago"
+                    defaultValue={0.00}
+                    onValueChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    intlConfig={{ locale: 'pt-BR', currency: 'BRL' }}
                   />
                 )}
               />
@@ -141,11 +159,16 @@ const Add: NextPageWithLayout = () => {
               <Controller
                 name='discount'
                 control={control}
-                render={({ field }) => (
-                  <Input.Input
-                    type="number"
-                    placeholder='Caso teve algum desconto, informe aqui'
-                    {...field}
+                render={({ field: {name, onBlur, onChange, ref, value} }) => (
+                  <Input.Currency
+                    ref={ref}
+                    name={name}
+                    placeholder="Caso teve algum desconto, informe aqui"
+                    defaultValue={0.00}
+                    onValueChange={onChange}
+                    onBlur={onBlur}
+                    value={value}
+                    intlConfig={{ locale: 'pt-BR', currency: 'BRL' }}
                   />
                 )}
               />
@@ -161,21 +184,9 @@ const Add: NextPageWithLayout = () => {
         </form>
       </div>
     </div>
+    </>
+
   )
-}
-
-export const getServerSideProps: GetServerSideProps = async ({req, res}) => {
-  const token = getCookie('token', {req, res})
-  if(!token) return {
-    redirect: {
-      destination: '/logout',
-      permanent: false,
-    }
-  }
-
-  return {
-    props: {}
-  }
 }
 
 Add.getLayout = function getLayout(page: ReactElement) {

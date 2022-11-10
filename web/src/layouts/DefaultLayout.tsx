@@ -10,7 +10,7 @@ export default function DefaultLayout({ children }: DefaultLayoutProps) {
   return (
     <div>
       <Header />
-      <div className='mx-auto w-[1120px] px-4 grid grid-cols-3-7 gap-4 mt-4'>
+      <div className='mx-auto md:w-[1120px] w-screen px-4 grid md:grid-cols-3-7 grid-1 gap-4 mt-4'>
         <AsideMenu />
         <main>{children}</main>
       </div>

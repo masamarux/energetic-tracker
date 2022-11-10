@@ -4,6 +4,7 @@ interface StatusItemProps {
 }
 
 export function StatusItem({ title, value }: StatusItemProps) {
+  console.log(title, value)
   return (
     <div className='flex flex-col'>
       <span className='text-dark-blue-300 font-bold text-2md'>{title}</span>

@@ -1,6 +1,7 @@
 import { forwardRef, InputHTMLAttributes, ReactNode, useEffect, useState } from 'react';
 import { EyeClosed, Eye } from "phosphor-react";
 import clsx from 'clsx';
+import CurrencyInput, {CurrencyInputProps} from 'react-currency-input-field';
 
 interface InputContainerProps {
   children: ReactNode
@@ -71,8 +72,27 @@ const PasswordInput = forwardRef<RefPassword, InputHTMLAttributes<HTMLInputEleme
   )
 })
 
+type RefInputCurrency = HTMLInputElement
+
+const InputCurrency = forwardRef<RefInputCurrency, CurrencyInputProps>((props, ref) => {
+  return (
+    <CurrencyInput
+      ref={ref}
+      allowNegativeValue={false}
+      decimalSeparator=','
+      groupSeparator='.'
+      decimalsLimit={2}
+      className="bg-transparent text-gray-100 placeholder:text-dark-blue-100 text-md font-normal flex-1 focus:outline-none"
+      {...props}
+    />
+  )
+})
+
+
+
 export const Input = {
   Container: InputContainer,
   Input: InputInput,
-  Password: PasswordInput
+  Password: PasswordInput,
+  Currency: InputCurrency
 }

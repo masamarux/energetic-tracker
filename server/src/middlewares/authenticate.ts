@@ -17,15 +17,23 @@ export async function authenticate(req: Request, res: Response, next: NextFuncti
 
     const [, token] = authorization.split(' ');
 
-    const decoded = verify(token, String(jwt.secret));
+    verify(token, String(jwt.secret), async function(err, decoded) {
+      if (err) {
+        return res.status(401).json({error: 'Invalid token'})
+      }
 
-    const user = await User.findByPk(String(decoded.sub));
+      if(decoded) {
+        const user = await User.findByPk(String(decoded.sub));
 
-    if (!user) return res.status(401).json({error: 'Token invalid'});
+        if (!user) return res.status(404).json({error: 'User not found'});
+  
+        req.userId= String(decoded.sub);
 
-    req.userId= String(decoded.sub);
+        return next()
+      }
 
-    next()
+      return res.status(500).json({error: 'Unknown error'})
+    });
   } catch(error) {
     return res.status(400).json({error});
   }
