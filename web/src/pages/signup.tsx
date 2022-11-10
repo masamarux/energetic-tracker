@@ -3,6 +3,9 @@ import * as Separator from '@radix-ui/react-separator'
 import { useRouter } from 'next/router'
 import { useContext } from 'react'
 import { Controller, useForm } from 'react-hook-form'
+import * as z from 'zod';
+import {zodResolver} from '@hookform/resolvers/zod';
+
 import { Button } from '../components/Button'
 import { Input } from '../components/Input'
 import { Loading } from '../components/Loading'
@@ -12,16 +15,23 @@ const alfaSlabOne = Alfa_Slab_One({
   weight: ['400']
 })
 
-interface SignUpInputProps {
+type FieldValues = {
   name: string
   email: string
   password: string
 }
 
+const signUpInputSchema = z.object({
+  name: z.string().min(3),
+  email: z.string().email(),
+  password: z.string().min(6)
+});
+
 export default function SignUp() {
   const { signUp, loading} = useContext(AuthContext)
   const { push } = useRouter()
-  const { handleSubmit, control, reset } = useForm<SignUpInputProps>({
+  const { handleSubmit, control, reset, formState: {errors} } = useForm<FieldValues>({
+    resolver: zodResolver(signUpInputSchema),
     defaultValues: {
       name: '',
       email: '',
@@ -33,7 +43,7 @@ export default function SignUp() {
     push('/')
   }
 
-  async function handleSignUp(data: SignUpInputProps) {
+  async function handleSignUp(data: FieldValues) {
     try {
       await signUp(data)
 
@@ -63,7 +73,7 @@ export default function SignUp() {
 
         <form onSubmit={handleSubmit(handleSignUp)} className="flex flex-col gap-4">
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Nome
-            <Input.Container>
+            <Input.Container hasError={!!errors.name}>
               <Controller
                 name='name'
                 control={control}
@@ -76,11 +86,10 @@ export default function SignUp() {
                 )}
               />
             </Input.Container>
-            
           </label>
 
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Email
-            <Input.Container>
+            <Input.Container hasError={!!errors.email}>
               <Controller
                 name='email'
                 control={control}
@@ -93,11 +102,10 @@ export default function SignUp() {
                 )}
               />
             </Input.Container>
-            
           </label>
 
           <label className='grid grid-cols-3-7 items-center gap-4 text-dark-blue-100 text-lg font-bold'>Senha
-            <Input.Container>
+            <Input.Container hasError={!!errors.password}>
               <Controller
                 name='password'
                 control={control}
@@ -110,7 +118,6 @@ export default function SignUp() {
                 )}
               />
             </Input.Container>
-            
           </label>
           
           <footer className='flex justify-around gap-8'>

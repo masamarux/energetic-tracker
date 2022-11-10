@@ -1,5 +1,6 @@
 import axios from 'axios';
-import { createContext, ReactNode, useState } from 'react';
+import { setCookie } from 'cookies-next';
+import { createContext, ReactNode, useEffect, useState } from 'react';
 
 interface LoginProps {
   email: string
@@ -17,6 +18,7 @@ interface AuthContextData {
   name: string;
   login: (data: LoginProps) => void;
   signUp: (data: SignUpProps) => void;
+  logout: () => void;
 }
 
 export const AuthContext = createContext({} as AuthContextData);
@@ -33,7 +35,7 @@ export function AuthProvider({children}: AuthProviderProps) {
     setLoading(true);
     try {
       const response = await axios.post('/api/login', data)
-      console.log(response.data.user.name)
+
       setName(response.data.user.name)
     } catch (error) {
       console.log(error)
@@ -50,11 +52,29 @@ export function AuthProvider({children}: AuthProviderProps) {
     } finally {
       setLoading(false);
     }
-    
   }
 
+  function logout() {
+    setName('');
+    localStorage.setItem('@energetic-tracker1.0:user-name', '')
+  }
+
+  useEffect(() => {
+    const nameStored = localStorage.getItem('@energetic-tracker1.0:user-name')
+
+    if (nameStored) {
+      setName(nameStored)
+    }
+  }, [])
+
+  useEffect(() => {
+    if(name) {
+      localStorage.setItem('@energetic-tracker1.0:user-name', name)
+    }
+  }, [name])
+
   return (
-    <AuthContext.Provider value={{name, loading, login, signUp}}>
+    <AuthContext.Provider value={{name, loading, login, signUp, logout}}>
       {children}
     </AuthContext.Provider>
   )

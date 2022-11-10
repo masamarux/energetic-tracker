@@ -15,11 +15,11 @@ export function EnergyItem({title, value, variant="primary"}: EnergyItemProps) {
         'border-green-500': variant === 'secondary',
       })
     }>
-      <strong className='text-gray-200 font-bold h-12 flex items-start'>{title}</strong>
+      <strong className='text-gray-200 font-bold flex items-start'>{title}</strong>
       <Separator.Root orientation='horizontal' decorative className='bg-dark-blue-700 w-full h-px my-2' />
       <span className={
-        clsx('font-bold', {
-          'text-cyan-600': variant === 'primary',
+        clsx('font-bold text-lg flex items-end', {
+          'text-cyan-500': variant === 'primary',
           'text-green-500': variant === 'secondary',
         })
       }>{value}</span>

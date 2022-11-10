@@ -6,13 +6,21 @@ import { Op } from 'sequelize';
 
 export async function listAllConsumptions(req: Request, res: Response) {
   try{
+    const page = req.query.page
+
     const consumptions = await Consumption.findAndCountAll({
       where: {
         userId: req.userId,
-      }
+      },
+      limit: 10,
+      offset: (Number(page) - 1) * 10,
     });
 
-    return res.status(200).json({consumptions});
+    const pagesCount = Math.ceil(consumptions.count / 10)
+
+    const pages = [...Array(pagesCount).keys()].map((page) => page + 1)
+
+    return res.status(200).json({pages, ...consumptions});
   } catch(error) {
     return res.status(400).json({error});
   }
@@ -21,11 +29,11 @@ export async function listAllConsumptions(req: Request, res: Response) {
 export async function createConsumption(req: Request, res: Response) {
   try{
     const createConsumptionBody = z.object({
-      tag: z.string(),
+      tag: z.string().min(2),
       date: z.string(),
-      consumption: z.number(),
-      value: z.number(),
-      discount: z.number().optional(),
+      value: z.number().min(0).or(z.string()),
+      discount: z.number().optional().or(z.string()),
+      consumption: z.number().min(0).or(z.string())
     })
 
     const {
@@ -47,7 +55,7 @@ export async function createConsumption(req: Request, res: Response) {
       userId: req.userId,
     })
 
-    return res.status(201).json({consumptionCreated});
+    return res.status(201).json();
   } catch(error) {
     return res.status(400).json({error});
   }
@@ -139,9 +147,13 @@ export async function moreEnergyData(req: Request, res: Response) {
     const lastDate = consumptions[0].date;
     const firstDate = consumptions[consumptions.length - 1].date;
 
-    const hours = differenceInHours(lastDate, firstDate);
+    let hours = differenceInHours(lastDate, firstDate);
 
-    const energyPerHour = consumptions.reduce((acc, consumption) => acc + consumption.consumption, 0) / hours;
+    if(hours <= 0) {
+      hours = 720;
+    }
+
+    const energyPerHour = consumptions.reduce((acc, consumption) => acc + consumption.consumption, 0) / hours || 720;
     const valuePerHour = consumptions.reduce((acc, consumption) => acc + consumption.value, 0) / hours;
 
     const valueTotal = consumptions.reduce((acc, consumption) => acc + consumption.value, 0);

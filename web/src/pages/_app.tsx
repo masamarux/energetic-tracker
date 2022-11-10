@@ -20,17 +20,20 @@ type AppPropsWithLayout = AppProps & {
 export default function App({ Component, pageProps }: AppPropsWithLayout) {
   const getLayout = Component.getLayout ?? ((page) => page)
 
-  return getLayout(
+  return (
     <AuthProvider>
-      <>
-        <style jsx global>{`
-          html {
-            font-family: ${roboto.style.fontFamily};
-          }
-        `}</style>
-        <Component {...pageProps} />
-      </>
-      
+      {
+        getLayout(
+          <>
+            <style jsx global>{`
+              html {
+                font-family: ${roboto.style.fontFamily};
+              }
+            `}</style>
+            <Component {...pageProps} />
+          </>
+        )
+      }
     </AuthProvider>
   )
 }

@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse,  } from 'next';
-import { api } from '../../libs/axios';
+import { api } from '../../libs/backend';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   try {

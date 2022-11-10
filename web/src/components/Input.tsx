@@ -1,13 +1,17 @@
 import { forwardRef, InputHTMLAttributes, ReactNode, useEffect, useState } from 'react';
 import { EyeClosed, Eye } from "phosphor-react";
+import clsx from 'clsx';
 
 interface InputContainerProps {
   children: ReactNode
+  hasError?: boolean
 }
 
-function InputContainer({children}: InputContainerProps) {
+function InputContainer({children, hasError= false}: InputContainerProps) {
   return (
-    <div className="flex flex-row rounded p-3 bg-dark-blue-500 focus-within:ring-2 ring-green-400">
+    <div className={clsx("flex flex-row rounded p-3 bg-dark-blue-500 focus-within:ring-2 ring-green-400", {
+      "ring-2 ring-red-300": hasError
+    })}>
       {children}
     </div>
     
@@ -17,7 +21,7 @@ function InputContainer({children}: InputContainerProps) {
 type RefInput = HTMLInputElement
 
 const InputInput = forwardRef<RefInput, InputHTMLAttributes<HTMLInputElement>>((props, ref) => {
-  const {name, type, ...rest} = props;
+  const {name, ...rest} = props;
 
   return (
     <input 
